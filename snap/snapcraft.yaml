@@ -1,0 +1,21 @@
+name: lp-build-snap
+version: '1.0'
+summary: Utility to trigger Snap package builds in Launchpad
+description: |
+  A command-line tool that lets you trigger Snap package builds in Launchpad
+  manually or from CI
+grade: stable
+confinement: strict
+
+apps:
+  lp-build-snap:
+    command: python3 $SNAP/lp-build-snap
+    plugs: [network]
+    
+parts:
+  lp-build-snap:
+    plugin: dump
+    source: .
+    stage-packages:
+      - python3
+      - python3-launchpadlib
