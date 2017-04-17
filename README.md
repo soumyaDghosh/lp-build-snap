@@ -1,6 +1,13 @@
 # lp-build-snap
 Utility to trigger Snap package builds in Launchpad
 
+# Install
+
+On any Snap-capable system:
+```
+snap install lp-build-snap
+```
+
 # Usage
 ```
 lp-build-snap [-h] [--lpname LPNAME] [--arch ARCH] [--series SERIES] snap_name
