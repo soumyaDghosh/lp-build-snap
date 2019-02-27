@@ -1,11 +1,12 @@
 name: lp-build-snap
-version: '1.0'
+version: git
 summary: Utility to trigger Snap package builds in Launchpad
 description: |
   A command-line tool that lets you trigger Snap package builds in Launchpad
   manually or from CI
 grade: stable
 confinement: strict
+base: core18
 
 apps:
   lp-build-snap:
