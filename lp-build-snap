@@ -12,9 +12,9 @@ DEBUG=False
 home = os.getenv("HOME")
 workdir = home+"/snap-builds"
 
-parser = argparse.ArgumentParser(description='Trigger a Snap build in Launchpad')
+parser = argparse.ArgumentParser(description='Trigger a Snap build in Launchpad. If no series or arch argument is specific it will default to the serie defined by the snapcraft.yaml and build on the available architectures.')
 parser.add_argument("--lpname", dest="lpname", default=os.getenv("USER"), help="Launchpad user or team to build from (default: %s)"%os.getenv("USER"))
-parser.add_argument("--arch", dest="arch", default="amd64", help="Build architecture to target (default: amd64)")
+parser.add_argument("--arch", dest="arch", default=None, help="Build architecture to target")
 parser.add_argument("--series", dest="series", default="bionic", help="Ubuntu release to build against (default: bionic)")
 parser.add_argument("--core-channel", dest="core", default=None, help="Channel to find core (default: None)")
 parser.add_argument("--snapcraft-channel", dest="snapcraft", default=None, help="Channel to find snapcraft (default: None)")
@@ -37,8 +37,9 @@ creds = workdir+"/credentials"
 if DEBUG:
     print ("people_name: %s" % people_name)
     print ("snap_name: %s" % snap_name)
-    print ("buildarch: %s" % buildarch)
-    print ("series: %s" % series)
+    if buildarch:
+        print ("buildarch: %s" % buildarch)
+        print ("series: %s" % series)
     print ("core-channel: %s" % core)
     print ("snapcraft-channel: %s" % snapcraft)
     print ("cachedir: %s" % cachedir)
@@ -63,9 +64,9 @@ ubuntucore = launchpad.snaps.getByName(name=snap_name,
 
 # get distro info
 ubuntu = launchpad.distributions['ubuntu']
-release = ubuntu.getSeries(name_or_version=series)
-
-arch = release.getDistroArchSeries(archtag=buildarch)
+if buildarch:
+    release = ubuntu.getSeries(name_or_version=series)
+    arch = release.getDistroArchSeries(archtag=buildarch)
 
 # trigger build
 if core or snapcraft:
@@ -73,14 +74,26 @@ if core or snapcraft:
         core = 'stable'
     if not snapcraft:
         snapcraft = 'stable'
-    request = ubuntucore.requestBuild(archive=ubuntu.main_archive,
-                                      channels={'core': core, 'snapcraft': snapcraft},
-                                      distro_arch_series=arch,
-                                      pocket='Updates')
+    if buildarch:
+        request = ubuntucore.requestBuild(archive=ubuntu.main_archive,
+                                          channels={'core': core, 'snapcraft': snapcraft},
+                                          distro_arch_series=arch,
+                                          pocket='Updates')
+    else:
+        request = ubuntucore.requestBuilds(archive=ubuntu.main_archive,
+                                          channels={'core': core, 'snapcraft': snapcraft},
+                                          pocket='Updates')
 else:
-    request = ubuntucore.requestBuild(archive=ubuntu.main_archive,
-                                      distro_arch_series=arch,
-                                      pocket='Updates')
+    if buildarch:
+        request = ubuntucore.requestBuild(archive=ubuntu.main_archive,
+                                          distro_arch_series=arch,
+                                          pocket='Updates')
+    else:
+        request = ubuntucore.requestBuilds(archive=ubuntu.main_archive,
+                                          pocket='Updates')
+
 buildid = str(request).rsplit('/', 1)[-1]
-print("Arch: {} is building under: {}".format(buildarch,
-                                              request))
+if buildarch:
+    print("Arch: {} is building under: {}".format(buildarch, request))
+else:
+    print("Snap is building under: {}".format(request))
