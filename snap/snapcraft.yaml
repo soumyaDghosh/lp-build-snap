@@ -13,7 +13,7 @@ architectures:
 apps:
   lp-build-snap:
     command: usr/bin/python3 $SNAP/lp-build-snap
-    plugs: [network]
+    plugs: [desktop, network]
     
 parts:
   lp-build-snap:
