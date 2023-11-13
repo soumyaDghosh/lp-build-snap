@@ -6,19 +6,28 @@ description: |
   manually or from CI
 grade: stable
 confinement: strict
-base: core18
+base: core20
 architectures:
   - build-on: [ amd64, i386 ]
 
 apps:
   lp-build-snap:
-    command: python3 $SNAP/lp-build-snap
-    plugs: [network]
+    command: usr/bin/python3 $SNAP/lp-build-snap
+    plugs: [desktop, network]
     
 parts:
   lp-build-snap:
     plugin: dump
     source: .
     stage-packages:
+      - libpython3.8-minimal
+      - libpython3.8-stdlib
+      - libssl1.1
+      - libssl-dev
       - python3
+      - python3-minimal
+      - python3.8
+      - python3.8-minimal
       - python3-launchpadlib
+      - python3-openssl
+      - python3-pkg-resources
