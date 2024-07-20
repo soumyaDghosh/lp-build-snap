@@ -6,28 +6,36 @@ description: |
   manually or from CI
 grade: stable
 confinement: strict
-base: core20
-architectures:
-  - build-on: [ amd64, i386 ]
+base: core24
+platforms:
+  amd64: 
+  arm64: 
+  armhf:
 
 apps:
   lp-build-snap:
-    command: usr/bin/python3 $SNAP/lp-build-snap
+    command: usr/bin/lp-build-snap
     plugs: [desktop, network]
+    environment:
+      PYTHONPATH: $SNAP/usr/lib/python3/dist-packages
     
 parts:
   lp-build-snap:
     plugin: dump
     source: .
-    stage-packages:
-      - libpython3.8-minimal
-      - libpython3.8-stdlib
-      - libssl1.1
-      - libssl-dev
-      - python3
-      - python3-minimal
-      - python3.8
-      - python3.8-minimal
-      - python3-launchpadlib
-      - python3-openssl
-      - python3-pkg-resources
+    organize:
+      lp-build-snap: usr/bin/lp-build-snap
+
+  python-deps:
+    plugin: python
+    source: .
+    python-packages:
+      - launchpadlib==2.0.0
+      - keyring==25.2.1
+    organize:
+      lib/python3.12/site-packages: usr/lib/python3/dist-packages
+      bin: usr/bin
+    prime:
+      - usr/bin/distro
+      - usr/bin/keyring
+      - usr/lib
